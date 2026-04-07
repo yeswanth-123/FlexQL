@@ -1,0 +1,101 @@
+FlexQL — How to Run
+===================
+
+
+1. BUILD
+--------
+Open a terminal in the project directory and run:
+
+    make
+
+This produces:  flexql_server  flexql_client  benchmark_flexql
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. START THE SERVER  (Terminal 1)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Keep this terminal open and dedicated to the server.
+The server runs in the foreground and listens on port 9000.
+
+    ./flexql_server
+
+You should see:
+    FlexQL server listening on 9000
+    
+if failed:
+    fuser -k 9000/tcp
+    ./flexql_server
+    
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. CONNECT WITH THE INTERACTIVE CLIENT  (Terminal 2)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Open a NEW terminal in the project directory.
+
+Usage:  ./flexql_client <host> <port>
+
+To connect to a locally running server:
+
+    ./flexql_client 127.0.0.1 9000
+
+You should see:
+    Connected to FlexQL server
+
+Now type SQL commands at the prompt. Type EXIT to quit.
+
+Example:
+    flexql> CREATE TABLE DEMO (ID DECIMAL, NAME VARCHAR(32))
+    flexql> INSERT INTO DEMO VALUES (1, 'Alice')
+    flexql> SELECT * FROM DEMO
+    flexql> EXIT
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. STOP THE SERVER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Press Ctrl+C in Terminal 1 where the server is running.
+
+Or from any other terminal:
+
+    fuser -k 9000/tcp
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. TO CLEAR EXISTING DATA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Stop the server first (Ctrl+C or fuser -k 9000/tcp), then run:
+
+    rm -rf data
+    mkdir -p data/default_db/{tables,schema,index}
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. RUN BENCHMARK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+--- Terminal 1: Stop server, clear data, restart ---
+
+    fuser -k 9000/tcp
+    rm -rf data
+    mkdir -p data/default_db/{tables,schema,index}
+    ./flexql_server
+
+Wait until you see:
+    FlexQL server listening on 9000
+
+--- Terminal 2: Run the benchmark ---
+
+  # 1 Million rows
+    ./benchmark_flexql 1000000
+
+  # 10 Million rows  (clear data and restart server first )
+    ./benchmark_flexql 10000000
+
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. CLEAN BUILD ARTIFACTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    make clean
